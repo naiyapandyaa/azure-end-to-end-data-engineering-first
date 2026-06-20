@@ -1,0 +1,15 @@
+{
+	"name": "datafactorynaiya",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Disabled",
+			"editable": true
+		}
+	},
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "6c220d2e-3ef1-4d26-ae3f-82bba5378d13",
+		"tenantId": "3f4c672e-4631-4a1a-b171-424b019f0f05"
+	}
+}
