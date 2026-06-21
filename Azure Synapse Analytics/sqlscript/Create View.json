@@ -1,0 +1,17 @@
+{
+	"name": "Create View",
+	"properties": {
+		"content": {
+			"query": "-- create calaendar view\nCREATE VIEW gold.calendar\nAS\nSELECT \n     *\nFROM \n     OPENROWSET(\n       BULK 'https://externalstoragenaiya.dfs.core.windows.net/silver/AdventureWorks_Calendar/',\n       FORMAT = 'PARQUET'\n     )as query1\n\n\n-- create customer view\nCREATE VIEW gold.customer\nAS\nSELECT \n     *\nFROM \n     OPENROWSET(\n       BULK 'https://externalstoragenaiya.dfs.core.windows.net/silver/AdventureWorks_Customers/',\n       FORMAT = 'PARQUET'\n     )as query1\n\n-- create product_category view\nCREATE VIEW gold.pro_cat\nAS\nSELECT \n     *\nFROM \n     OPENROWSET(\n       BULK 'https://externalstoragenaiya.dfs.core.windows.net/silver/AdventureWorks_Product_Categories/',\n       FORMAT = 'PARQUET'\n     )as query1     \n\n-- create product_subcategory view\nCREATE VIEW gold.pro_subcat\nAS\nSELECT \n     *\nFROM \n     OPENROWSET(\n       BULK 'https://externalstoragenaiya.dfs.core.windows.net/silver/AdventureWorks_Product_Subcategories/',\n       FORMAT = 'PARQUET'\n     )as query1     \n\n-- create product view\nCREATE VIEW gold.product\nAS\nSELECT \n     *\nFROM \n     OPENROWSET(\n       BULK 'https://externalstoragenaiya.dfs.core.windows.net/silver/AdventureWorks_Products/',\n       FORMAT = 'PARQUET'\n     )as query1     \n\n-- create returns view\nCREATE VIEW gold.returns\nAS\nSELECT \n     *\nFROM \n     OPENROWSET(\n       BULK 'https://externalstoragenaiya.dfs.core.windows.net/silver/AdventureWorks_Returns/',\n       FORMAT = 'PARQUET'\n     )as query1    \n\n-- create Territories view\nCREATE VIEW gold.territories\nAS\nSELECT \n     *\nFROM \n     OPENROWSET(\n       BULK 'https://externalstoragenaiya.dfs.core.windows.net/silver/AdventureWorks_Territories/',\n       FORMAT = 'PARQUET'\n     )as query1     \n\n\n-- create Sales view\nCREATE VIEW gold.sales\nAS\nSELECT \n     *\nFROM \n     OPENROWSET(\n       BULK 'https://externalstoragenaiya.dfs.core.windows.net/silver/AdventureWorks_Sales_2017/',\n       FORMAT = 'PARQUET'\n     )as query1            \n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "serverles_sqlpool",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

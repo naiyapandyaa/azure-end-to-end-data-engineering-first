@@ -1,0 +1,17 @@
+{
+	"name": "SQL External Table",
+	"properties": {
+		"content": {
+			"query": "CREATE MASTER KEY ENCRYPTION BY PASSWORD = ''\n\n\nCREATE DATABASE SCOPED CREDENTIAL naiya_cred\nWITH\n   IDENTITY = 'Managed Identity'\n\n-- Create External DataSource Silver\nCREATE EXTERNAL DATA SOURCE source_silver\nWITH(\n    LOCATION = 'https://externalstoragenaiya.dfs.core.windows.net/silver/',\n    CREDENTIAL = naiya_cred\n)\n\n\n-- Create External DataSource Gold\nCREATE EXTERNAL DATA SOURCE source_gold\nWITH(\n    LOCATION = 'https://externalstoragenaiya.dfs.core.windows.net/gold/',\n    CREDENTIAL = naiya_cred\n)\n\n-- Create External FileFormat\nCREATE EXTERNAL FILE FORMAT format_parquet\nWITH(\n    FORMAT_TYPE = PARQUET,\n    DATA_COMPRESSION ='org.apache.hadoop.io.compress.SnappyCodec'\n)\n\n--Create External Table\nCREATE EXTERNAL TABLE gold.extsales\nWITH\n(\n    LOCATION = 'extsales',\n    DATA_SOURCE = source_gold,\n    FILE_FORMAT = format_parquet\n)\nAS\nSELECT * FROM gold.sales\n\nSELECT * FROM gold.sales",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "serverles_sqlpool",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
