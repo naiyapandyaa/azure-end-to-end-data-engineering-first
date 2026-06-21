@@ -1,0 +1,157 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"workspaceName": {
+			"type": "string",
+			"metadata": "Workspace name",
+			"defaultValue": "synapsewsnaiya"
+		},
+		"synapsewsnaiya-WorkspaceDefaultSqlServer_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'synapsewsnaiya-WorkspaceDefaultSqlServer'",
+			"defaultValue": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=tcp:synapsewsnaiya.sql.azuresynapse.net,1433;Initial Catalog=@{linkedService().DBName}"
+		},
+		"synapsewsnaiya-WorkspaceDefaultStorage_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://mandstorageaccount.dfs.core.windows.net"
+		}
+	},
+	"variables": {
+		"workspaceId": "[concat('Microsoft.Synapse/workspaces/', parameters('workspaceName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('workspaceName'), '/synapsewsnaiya-WorkspaceDefaultSqlServer')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"parameters": {
+					"DBName": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlDW",
+				"typeProperties": {
+					"connectionString": "[parameters('synapsewsnaiya-WorkspaceDefaultSqlServer_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/synapsewsnaiya-WorkspaceDefaultStorage')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('synapsewsnaiya-WorkspaceDefaultStorage_properties_typeProperties_url')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/AutoResolveIntegrationRuntime')]",
+			"type": "Microsoft.Synapse/workspaces/integrationRuntimes",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "Managed",
+				"typeProperties": {
+					"computeProperties": {
+						"location": "AutoResolve",
+						"dataFlowProperties": {
+							"computeType": "General",
+							"coreCount": 8,
+							"timeToLive": 0
+						}
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/WorkspaceSystemIdentity')]",
+			"type": "Microsoft.Synapse/workspaces/credentials",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "ManagedIdentity",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Create Schema')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "CREATE SCHEMA gold;",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "serverles_sqlpool",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Create View')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "-- create calaendar view\nCREATE VIEW gold.calendar\nAS\nSELECT \n     *\nFROM \n     OPENROWSET(\n       BULK 'https://externalstoragenaiya.dfs.core.windows.net/silver/AdventureWorks_Calendar/',\n       FORMAT = 'PARQUET'\n     )as query1\n\n\n-- create customer view\nCREATE VIEW gold.customer\nAS\nSELECT \n     *\nFROM \n     OPENROWSET(\n       BULK 'https://externalstoragenaiya.dfs.core.windows.net/silver/AdventureWorks_Customers/',\n       FORMAT = 'PARQUET'\n     )as query1\n\n-- create product_category view\nCREATE VIEW gold.pro_cat\nAS\nSELECT \n     *\nFROM \n     OPENROWSET(\n       BULK 'https://externalstoragenaiya.dfs.core.windows.net/silver/AdventureWorks_Product_Categories/',\n       FORMAT = 'PARQUET'\n     )as query1     \n\n-- create product_subcategory view\nCREATE VIEW gold.pro_subcat\nAS\nSELECT \n     *\nFROM \n     OPENROWSET(\n       BULK 'https://externalstoragenaiya.dfs.core.windows.net/silver/AdventureWorks_Product_Subcategories/',\n       FORMAT = 'PARQUET'\n     )as query1     \n\n-- create product view\nCREATE VIEW gold.product\nAS\nSELECT \n     *\nFROM \n     OPENROWSET(\n       BULK 'https://externalstoragenaiya.dfs.core.windows.net/silver/AdventureWorks_Products/',\n       FORMAT = 'PARQUET'\n     )as query1     \n\n-- create returns view\nCREATE VIEW gold.returns\nAS\nSELECT \n     *\nFROM \n     OPENROWSET(\n       BULK 'https://externalstoragenaiya.dfs.core.windows.net/silver/AdventureWorks_Returns/',\n       FORMAT = 'PARQUET'\n     )as query1    \n\n-- create Territories view\nCREATE VIEW gold.territories\nAS\nSELECT \n     *\nFROM \n     OPENROWSET(\n       BULK 'https://externalstoragenaiya.dfs.core.windows.net/silver/AdventureWorks_Territories/',\n       FORMAT = 'PARQUET'\n     )as query1     \n\n\n-- create Sales view\nCREATE VIEW gold.sales\nAS\nSELECT \n     *\nFROM \n     OPENROWSET(\n       BULK 'https://externalstoragenaiya.dfs.core.windows.net/silver/AdventureWorks_Sales_2017/',\n       FORMAT = 'PARQUET'\n     )as query1            \n\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "serverles_sqlpool",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL External Table')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "CREATE MASTER KEY ENCRYPTION BY PASSWORD = ''\n\n\nCREATE DATABASE SCOPED CREDENTIAL naiya_cred\nWITH\n   IDENTITY = 'Managed Identity'\n\n-- Create External DataSource Silver\nCREATE EXTERNAL DATA SOURCE source_silver\nWITH(\n    LOCATION = 'https://externalstoragenaiya.dfs.core.windows.net/silver/',\n    CREDENTIAL = naiya_cred\n)\n\n\n-- Create External DataSource Gold\nCREATE EXTERNAL DATA SOURCE source_gold\nWITH(\n    LOCATION = 'https://externalstoragenaiya.dfs.core.windows.net/gold/',\n    CREDENTIAL = naiya_cred\n)\n\n-- Create External FileFormat\nCREATE EXTERNAL FILE FORMAT format_parquet\nWITH(\n    FORMAT_TYPE = PARQUET,\n    DATA_COMPRESSION ='org.apache.hadoop.io.compress.SnappyCodec'\n)\n\n--Create External Table\nCREATE EXTERNAL TABLE gold.extsales\nWITH\n(\n    LOCATION = 'extsales',\n    DATA_SOURCE = source_gold,\n    FILE_FORMAT = format_parquet\n)\nAS\nSELECT * FROM gold.sales\n\nSELECT * FROM gold.sales",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "serverles_sqlpool",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		}
+	]
+}
