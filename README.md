@@ -12,6 +12,9 @@ This project demonstrates an end-to-end Azure Data Engineering pipeline using th
 - Git & GitHub
 
 ##  Architecture
+<p align="center">
+  <img src="Images/arc.png" alt="Azure End-to-End Data Engineering Architecture" width="900">
+</p>
 
 
 ## Project Workflow
